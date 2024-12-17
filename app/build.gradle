@@ -1,32 +1,37 @@
-apply plugin: 'com.android.application'
+plugins {
+    alias(libs.plugins.android.application)
+}
 
 android {
-    compileSdkVersion 10
-    buildToolsVersion "25.0.2"
+    namespace 'com.github.ma1co.pmcademo.app'
+    //noinspection GradleDependency
+    compileSdk 16
 
     defaultConfig {
         applicationId "com.github.ma1co.pmcademo.app"
-        minSdkVersion 10
-        targetSdkVersion 10
+        minSdk 16
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk 16
         versionCode "git -C ${projectDir} rev-list --first-parent --count HEAD".execute().text.trim().toInteger()
         versionName "git -C ${projectDir} describe --always --tags --dirty".execute().text.trim().replaceAll("^v", "")
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_6
-        targetCompatibility JavaVersion.VERSION_1_6
-    }
-}
-
-android.applicationVariants.all { variant ->
-    variant.outputs.each { output ->
-        def apkName = "PMCADemo-${output.baseName}-${variant.versionName}.apk"
-        output.outputFile = new File(output.outputFile.parent, apkName)
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
-    compile 'com.github.ma1co.OpenMemories-Framework:framework:-SNAPSHOT'
-    provided 'com.github.ma1co.OpenMemories-Framework:stubs:-SNAPSHOT'
-    compile 'com.nanohttpd:nanohttpd:2.1.1'
+    // OpenMemories-Framework
+    implementation libs.ma1co.openmemories.framework
+    // If you need direct access to the Sony APIs, you can add this line, too:
+    compileOnly libs.ma1co.openmemories.stubs
+    implementation libs.nanohttpd
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "PMCADemo-${variant.baseName}-${variant.versionName}(${variant.versionCode}).apk"
+        }
+    }
 }
